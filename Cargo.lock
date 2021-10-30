@@ -8,7 +8,7 @@ version = "0.1.0"
 source = "git+https://github.com/rust-lang/portable-simd#772bf2090e04db68790549bae36e5180423f9f65"
 
 [[package]]
-name = "refterm-aes"
+name = "refterm-hash-break"
 version = "0.1.0"
 dependencies = [
  "core_simd",

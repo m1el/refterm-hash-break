@@ -1,9 +1,9 @@
 [package]
-name = "refterm-aes"
+authors = ["Igor null <m1el.2027@gmail.com>"]
+name = "refterm-hash-break"
+license = "GNU General Public License v2.0"
 version = "0.1.0"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 core_simd = { git = "https://github.com/rust-lang/portable-simd" }
@@ -11,5 +11,5 @@ srng = { path = "./lib/srng" }
 simd_aes = { path = "./lib/simd_aes" }
 
 [[bin]]
-name = "refterm-aes"
+name = "refterm-hash-break"
 path = "main.rs"
