@@ -1,22 +1,7 @@
-#![feature(platform_intrinsics)]
 #![feature(portable_simd)]
-use core_simd::*;
-
-extern "platform-intrinsic" {
-    fn simd_cast<T,U>(x: T) -> U;
-}
-
-fn cast_16_32<const LANES: usize>(x: Simd<u16, LANES>) -> Simd<u32, LANES>
-where LaneCount<LANES>: SupportedLaneCount
-{
-    unsafe { simd_cast(x) }
-}
-
-fn cast_32_8<const LANES: usize>(x: Simd<u32, LANES>) -> Simd<u8, LANES>
-where LaneCount<LANES>: SupportedLaneCount
-{
-    unsafe { simd_cast(x) }
-}
+use core::simd::*;
+use core::simd::cmp::SimdPartialOrd;
+use core::simd::num::SimdUint;
 
 const LANES: usize = 4;
 /// A basic random number generator based on xorshift64 with 64-bits of state
@@ -49,25 +34,25 @@ impl SRng {
 
     /// Generates 4*LANES random ASCII characters
     pub fn random_ascii(&mut self) -> [u8; 4 * LANES] {
-        let max = Simd::splat(0x7f - 0x20);
+        let max = Simd::<u32, {4*LANES}>::splat(0x7f - 0x20);
         let space = Simd::splat(0x20);
         let random1 = Simd::<u16, {4*LANES}>::from_ne_bytes(self.next().to_ne_bytes());
-        let result = cast_16_32(random1) * cast_16_32(max);
-        (cast_32_8(result >> 16) + space).to_array()
+        let result = random1.cast::<u32>() * max;
+        ((result >> 16).cast::<u8>() + space).to_array()
     }
 
     /// Generates 4*LANES random alphanumeric characters
     pub fn random_alphanum(&mut self) -> [u8; 4 * LANES] {
-        let max = Simd::splat(10 + 26 + 26);
+        let max = Simd::<u32, {4*LANES}>::splat(10 + 26 + 26);
         let random1 = Simd::<u16, {4*LANES}>::from_ne_bytes(self.next().to_ne_bytes());
-        let result = cast_16_32(random1) * cast_16_32(max);
-        let mut result = cast_32_8(result >> 16) + Simd::splat(b'0');
+        let result = random1.cast::<u32>() * max;
+        let mut result = (result >> 16).cast::<u8>() + Simd::splat(b'0');
         let skip_ranges = [
             (b'9', b'A' - b'9' - 1),
             (b'Z', b'a' - b'Z' - 1),
         ];
         for (start, shift) in skip_ranges {
-            let mask = result.lanes_gt(Simd::splat(start));
+            let mask = result.simd_gt(Simd::splat(start));
             let shifted = result + Simd::splat(shift);
             result = mask.select(shifted, result);
         }
@@ -86,7 +71,7 @@ impl SRng {
             (b'_', b'a' - b'_' - 1),
         ];
         for (start, shift) in skip_ranges {
-            let mask = result.lanes_gt(Simd::splat(start));
+            let mask = result.simd_gt(Simd::splat(start));
             let shifted = result + Simd::splat(shift);
             result = mask.select(shifted, result);
         }
@@ -104,7 +89,7 @@ impl SRng {
             (b'Z', b'a' - b'Z' - 1),
         ];
         for (start, shift) in skip_ranges {
-            let mask = result.lanes_gt(Simd::splat(start));
+            let mask = result.simd_gt(Simd::splat(start));
             let shifted = result + Simd::splat(shift);
             result = mask.select(shifted, result);
         }

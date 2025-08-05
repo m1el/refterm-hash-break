@@ -3,15 +3,9 @@
 version = 3
 
 [[package]]
-name = "core_simd"
-version = "0.1.0"
-source = "git+https://github.com/rust-lang/portable-simd#772bf2090e04db68790549bae36e5180423f9f65"
-
-[[package]]
 name = "refterm-hash-break"
 version = "0.1.0"
 dependencies = [
- "core_simd",
  "simd_aes",
  "srng",
 ]
@@ -19,13 +13,7 @@ dependencies = [
 [[package]]
 name = "simd_aes"
 version = "0.1.0"
-dependencies = [
- "core_simd",
-]
 
 [[package]]
 name = "srng"
 version = "0.1.0"
-dependencies = [
- "core_simd",
-]

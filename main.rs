@@ -1,7 +1,10 @@
-#![allow(clippy::needless_return)]
 #![feature(portable_simd)]
+#![allow(clippy::needless_return)]
 
-use core_simd::Simd;
+use core::simd::{
+    cmp::SimdPartialOrd,
+    Simd, ToBytes,
+};
 use core::convert::TryInto;
 use srng::SRng;
 use simd_aes::SimdAes;
@@ -205,15 +208,15 @@ fn invert_attack(message: &[u8]) {
 
 pub fn check_alphanum(bytes: Simd<u8, 16>) -> bool {
     // check if the characters are outside of '0'..'z' range
-    if (bytes - Simd::splat(b'0')).lanes_gt(Simd::splat(b'z' - b'0')).any() {
+    if (bytes - Simd::splat(b'0')).simd_gt(Simd::splat(b'z' - b'0')).any() {
         return false;
     }
     // check if the characters are in of '9'+1..'A'-1 range
-    if (bytes - Simd::splat(b'9' + 1)).lanes_lt(Simd::splat(b'A' - (b'9' + 1))).any() {
+    if (bytes - Simd::splat(b'9' + 1)).simd_lt(Simd::splat(b'A' - (b'9' + 1))).any() {
         return false;
     }
     // check if the characters are in of 'Z'+1..'a'-1 range
-    if (bytes - Simd::splat(b'Z' + 1)).lanes_lt(Simd::splat(b'a' - (b'Z' + 1))).any() {
+    if (bytes - Simd::splat(b'Z' + 1)).simd_lt(Simd::splat(b'a' - (b'Z' + 1))).any() {
         return false;
     }
     return true;

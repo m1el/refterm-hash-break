@@ -6,7 +6,6 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-core_simd = { git = "https://github.com/rust-lang/portable-simd" }
 srng = { path = "./lib/srng" }
 simd_aes = { path = "./lib/simd_aes" }
 
